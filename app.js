@@ -10,10 +10,76 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+const Employee = require("./lib/Employee");
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
+const commonQuestions = [
+  {
+    name: 'name',
+    message: 'Employee name:'
+  },
+  {
+    name: 'email',
+    message: 'Employee email:'
+  }
+]
 
+const roleQuestions = [
+  [
+    // Manager questions
+    {
+      name: 'officeNumber',
+      message: 'Enter office number:'
+    }
+  ],
+  [
+    // Intern questions
+    {
+      name: 'school',
+      message: 'Enter school:'
+    }
+  ],
+  [
+    // Engineer questions
+    {
+      name: 'github',
+      message: 'Enter Github:'
+    }
+  ]
+]
+
+const roleChoices = [
+  {
+    type: 'list',
+    name: 'role',
+    message: 'Choose employee role:',
+    choices: [
+      { name: 'Intern', value: 1 },
+      { name: 'Engineer', value: 2 },
+      { name: 'Exit', value: 3 }
+    ]
+  }
+];
+
+const roleNames = [ "Manager", "Intern", "Engineer"];
+
+// Get Manager info
+async function getTeamInfo() {
+  console.log("Enter the Manager's Info:");
+  let managerInfo = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[0] ]);
+  // console.log(managerInfo);
+  // Enter team members
+  while(1) {
+    // Select Intern/Engineer/Exit
+    let roleSel = await inquirer.prompt(roleChoices);
+    if (roleSel.role == "3") break;
+    console.log(`Enter the ${roleNames[roleSel.role]}'s Info:`);
+    let info = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[roleSel.role] ]);
+    // console.log(info);
+  }
+}
+getTeamInfo();
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
