@@ -8,10 +8,14 @@ const fs = require("fs");
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 // create output directory if it doesn't exist
-fs.mkdir(OUTPUT_DIR, (err) => {
+fs.access(OUTPUT_DIR, fs.constants.F_OK, err => {
   if (err) {
-    console.log(`Error: Unable to create output directory: ${OUTPUT_DIR}\nExiting ...`);
-    process.exit(1);
+    fs.mkdir(OUTPUT_DIR, (err) => {
+      if (err) {
+        console.log(`Error: Unable to create output directory: ${OUTPUT_DIR}\nExiting ...`);
+        process.exit(1);
+      }
+    });
   }
 });
 
@@ -74,7 +78,7 @@ const roleNames = [ "Manager", "Intern", "Engineer"];
 let employees = [];
 
 // Get Manager info
-async function getTeamInfo() {
+async function getTeamInfoAndGenHTML() {
   let name, id, email, school, officeNumber, github;
   console.log("Enter the Manager's Info:");
   let managerInfo = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[0] ]);
@@ -100,33 +104,15 @@ async function getTeamInfo() {
         break;
     }
   }
+  // gen html
+  const html = render(employees);
+  // write out html
+  fs.writeFile(outputPath, html, (err) => {
+    if (err) {
+      console.log(`Error: Unable to generate output html file.\nExiting ...`);
+      process.exit(1);
+    }
+    console.log(`${outputPath} has been generated!`);
+  });
 }
-getTeamInfo();
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-const html = render(employees);
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-fs.writeFile(outputPath, html, (err) => {
-  if (err) {
-    console.log(`Error: Unable to generate output html file.\nExiting ...`);
-    process.exit(1);
-  }
-  console.log(`${outputPath} has been generated!`);
-});
-
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+getTeamInfoAndGenHTML();
