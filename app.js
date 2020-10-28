@@ -64,11 +64,16 @@ const roleChoices = [
 
 const roleNames = [ "Manager", "Intern", "Engineer"];
 
+let employees = [];
+
 // Get Manager info
 async function getTeamInfo() {
+  let name, id, email, school, officeNumber, github;
   console.log("Enter the Manager's Info:");
   let managerInfo = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[0] ]);
   // console.log(managerInfo);
+  ({name, id, email, officeNumber} = managerInfo);
+  employees.push(new Manager(name, id, email, officeNumber));
   // Enter team members
   while(1) {
     // Select Intern/Engineer/Exit
@@ -77,9 +82,20 @@ async function getTeamInfo() {
     console.log(`Enter the ${roleNames[roleSel.role]}'s Info:`);
     let info = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[roleSel.role] ]);
     // console.log(info);
+    switch(roleSel.role) {
+      case 1:
+        ({name, id, email, school} = info);
+        employees.push(new Intern(name, id, email, school));
+        break;
+      case 2:
+        ({name, id, email, github} = info);
+        employees.push(new Engineer(name, id, email, github));
+        break;
+    }
   }
 }
 getTeamInfo();
+
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
