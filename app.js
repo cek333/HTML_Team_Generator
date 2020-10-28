@@ -7,6 +7,13 @@ const fs = require("fs");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
+// create output directory if it doesn't exist
+fs.mkdir(OUTPUT_DIR, (err) => {
+  if (err) {
+    console.log(`Error: Unable to create output directory: ${OUTPUT_DIR}\nExiting ...`);
+    process.exit(1);
+  }
+});
 
 const render = require("./lib/htmlRenderer");
 
@@ -99,6 +106,7 @@ getTeamInfo();
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
+
 
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
