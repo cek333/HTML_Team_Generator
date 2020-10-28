@@ -4,6 +4,7 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const emailValidator = require("email-validator");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
@@ -23,16 +24,42 @@ const render = require("./lib/htmlRenderer");
 
 const Employee = require("./lib/Employee");
 
+function isAlphaWithSpaces(input) {
+  return /^[a-zA-Z ]+$/.test(input);
+}
+
+function isAlphaNumericWithDashes(input) {
+    return /^[a-zA-Z0-9\-]+$/.test(input);
+}
+
+function isInteger(input) {
+  return /^[0-9]+$/.test(input);
+}
+
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 const commonQuestions = [
   {
     name: 'name',
-    message: 'Employee name:'
+    message: 'Employee name:',
+    validate: function(input) {
+      if ( isAlphaWithSpaces(input.trim()) ) {
+        return true;
+      } else {
+        return "Please enter only letters (and spaces).";
+      }
+    }
   },
   {
     name: 'email',
-    message: 'Employee email:'
+    message: 'Employee email:',
+    validate: function(input) {
+      if (emailValidator.validate(input)) {
+        return true;
+      } else {
+        return "Please enter a valid email address.";
+      }
+    }
   }
 ]
 
@@ -41,21 +68,43 @@ const roleQuestions = [
     // Manager questions
     {
       name: 'officeNumber',
-      message: 'Enter office number:'
+      message: 'Enter office number:',
+      validate: function(input) {
+        if (isInteger(input)) {
+          return true;
+        } else {
+          return "Please enter an integer.";
+        }
+      }
     }
   ],
   [
     // Intern questions
     {
       name: 'school',
-      message: 'Enter school:'
+      message: 'Enter school:',
+      validate: function(input) {
+        if ( isAlphaWithSpaces(input) ) {
+          return true;
+        } else {
+          return "Please enter only letters (and spaces).";
+        }
+      }
     }
   ],
   [
     // Engineer questions
     {
       name: 'github',
-      message: 'Enter Github:'
+      message: 'Enter Github:',
+      validate: function(input) {
+        if ( isAlphaNumericWithDashes(input) ) {
+          return true;
+        } else {
+          return "Please enter only letters, numbers and single dashes.\n" +
+            "   Don't begin or end with a dash.";
+        }
+      }
     }
   ]
 ]
@@ -85,7 +134,7 @@ async function getTeamInfoAndGenHTML() {
   let managerInfo = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[0] ]);
   // console.log(managerInfo);
   ({name, email, officeNumber} = managerInfo);
-  employees.push(new Manager(name, eIdCnt++, email, officeNumber));
+  employees.push(new Manager(name.trim(), eIdCnt++, email, officeNumber));
   // Enter team members
   while(1) {
     // Select Intern/Engineer/Exit
@@ -97,11 +146,11 @@ async function getTeamInfoAndGenHTML() {
     switch(roleSel.role) {
       case 1:
         ({name, email, school} = info);
-        employees.push(new Intern(name, eIdCnt++, email, school));
+        employees.push(new Intern(name.trim(), eIdCnt++, email, school.trim()));
         break;
       case 2:
         ({name, email, github} = info);
-        employees.push(new Engineer(name, eIdCnt++, email, github));
+        employees.push(new Engineer(name.trim(), eIdCnt++, email, github));
         break;
     }
   }
