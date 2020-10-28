@@ -76,6 +76,7 @@ const roleChoices = [
 const roleNames = [ "Manager", "Intern", "Engineer"];
 
 let employees = [];
+let eIdCnt = 100;
 
 // Get Manager info
 async function getTeamInfoAndGenHTML() {
@@ -83,8 +84,8 @@ async function getTeamInfoAndGenHTML() {
   console.log("Enter the Manager's Info:");
   let managerInfo = await inquirer.prompt([ ...commonQuestions, ...roleQuestions[0] ]);
   // console.log(managerInfo);
-  ({name, id, email, officeNumber} = managerInfo);
-  employees.push(new Manager(name, id, email, officeNumber));
+  ({name, email, officeNumber} = managerInfo);
+  employees.push(new Manager(name, eIdCnt++, email, officeNumber));
   // Enter team members
   while(1) {
     // Select Intern/Engineer/Exit
@@ -95,12 +96,12 @@ async function getTeamInfoAndGenHTML() {
     // console.log(info);
     switch(roleSel.role) {
       case 1:
-        ({name, id, email, school} = info);
-        employees.push(new Intern(name, id, email, school));
+        ({name, email, school} = info);
+        employees.push(new Intern(name, eIdCnt++, email, school));
         break;
       case 2:
-        ({name, id, email, github} = info);
-        employees.push(new Engineer(name, id, email, github));
+        ({name, email, github} = info);
+        employees.push(new Engineer(name, eIdCnt++, email, github));
         break;
     }
   }
